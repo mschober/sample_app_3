@@ -94,5 +94,21 @@ describe "UserPages" do
       specify { user.reload.name.should  == new_name }
       specify { user.reload.email.should == new_email }
     end
+
+    describe "as a wrong user" do
+      let(:user) { FactoryGirl.create(:user) }
+      let(:wrong_user) { FactoryGirl.create(:user, email: "wrong@example.com") }
+      before { sign_in user }
+
+      describe "visiting the Users#edit page" do
+        before { visit edit_user_path(wrong_user) }
+        it { should_not have_selector('title', text: full_title('Edit user')) }
+      end
+
+      describe "submitting a PUT request to the User#edit action" do
+        before { put user_path(wrong_user) }
+        specify { response.should redirect_to(root_path) }
+      end
+    end
   end
 end
