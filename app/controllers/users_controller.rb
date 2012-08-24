@@ -34,6 +34,10 @@ class UsersController < ApplicationController
   def edit
   end
 
+  def index
+    @users = User.all
+  end
+
   private
 
     def signed_in_user
