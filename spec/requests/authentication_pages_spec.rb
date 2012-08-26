@@ -60,6 +60,11 @@ describe "AuthenticationPages" do
             page.should have_selector('title', text: 'Edit user')
           end
         end
+
+        describe "visiting the user index" do
+          before { visit users_path }
+          it { should have_selector('title', text: 'All users') }
+        end
       end
 
       describe "in the Users controller" do
@@ -68,14 +73,22 @@ describe "AuthenticationPages" do
           it { should have_selector('title', text: 'Sign in') }
         end
 
-        describe "visiting the user index" do
-          before { visit users_path }
-          it { should have_selector('title', text: 'All users') }
-        end
 
         describe "submitting to the update action" do
           before { put user_path(user) }
           specify { response.should redirect_to(signin_path) }
+        end
+
+        describe "as non-admin user" do
+          let(:user) { FactoryGirl.create(:user) }
+          let(:non_admin) { FactoryGirl.create(:user) }
+
+          before { sign_in non_admin }
+
+          describe "submitting a DELETE request to the User#destroy action" do
+            before { delete user_path(user) }
+            specify { response.should redirect_to(root_path) }
+          end
         end
       end
     end
