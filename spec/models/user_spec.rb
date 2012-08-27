@@ -139,7 +139,7 @@ describe User do
 
   describe "micropost associations" do
     before { @user.save }
-    let!(:old_micropost) do
+    let!(:older_micropost) do
       FactoryGirl.create(:micropost, user: @user, created_at: 1.day.ago)
     end
     let!(:newer_micropost) do
@@ -147,7 +147,7 @@ describe User do
     end
 
     it "should have the right microposts in the right order" do
-      @user.microposts.should == [newer_micropost, old_micropost]
+      @user.microposts.should == [newer_micropost, older_micropost]
     end
 
     it "should destroy associated microposts" do
@@ -156,6 +156,16 @@ describe User do
       microposts.each do |micropost|
         Micropost.find_by_id(micropost.id).should be_nil
       end
+    end
+
+    describe "status" do
+      let(:unfollowed_post) do
+        FactoryGirl.create(:micropost, user: FactoryGirl.create(:user))
+      end
+
+      its(:feed) { should include(newer_micropost) }
+      its(:feed) { should include(older_micropost) }
+      its(:feed) { should_not include(unfollowed_post) }
     end
   end
 end
